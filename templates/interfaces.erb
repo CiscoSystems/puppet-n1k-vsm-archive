@@ -1,0 +1,25 @@
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+auto <%= public_interface %>
+iface <%= public_interface %> inet manual
+
+# dns-* options are implemented by the resolvconf package, if installed
+dns-search <%= domain_name %>
+
+auto <%= external_interface %>
+iface <%= external_interface %> inet static
+  address 0.0.0.0
+  netmask 255.255.255.255
+
+auto <%= scope.lookupvar('vsm::ovsbridge') %>
+iface <%= scope.lookupvar('vsm::ovsbridge') %> inet static
+   address <%= scope.lookupvar('::vsmip') %>
+   netmask <%= scope.lookupvar('vsm::nodenetmask') %>
+   gateway <%= scope.lookupvar('vsm::nodegateway') %>
+   bridge_ports <%= scope.lookupvar('vsm::ovsbridge') %>
+

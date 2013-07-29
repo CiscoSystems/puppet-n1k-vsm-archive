@@ -1,0 +1,68 @@
+<domain type='kvm' >
+     <name><%= scope.lookupvar('vsm::vsmname') %></name>
+     <memory unit='KiB'><%= scope.lookupvar('vsm::memory') %></memory> 
+     <vcpu placement='static'> <%= scope.lookupvar('vsm::vcpu') %></vcpu>
+
+     <os>
+          <type arch='x86_64' machine='pc-1.0'>hvm</type> 
+          <boot dev='cdrom'/>
+          <boot dev='hd'/>
+     </os>
+
+     <features> <acpi/> <apic/> <pae/> </features>
+
+     <clock offset='localtime'/> 
+     <on_poweroff>destroy</on_poweroff>
+     <on_reboot>restart</on_reboot> 
+     <on_crash>restart</on_crash> 
+
+     <devices>
+          <emulator>/usr/bin/qemu-system-x86_64</emulator> 
+          <disk type='file' device='disk'>
+               <driver name='qemu' type='raw'/>
+               <source file='<%= scope.lookupvar('vsm::diskfile') %>'/> 
+               <target dev='hda' bus='ide'/>
+          </disk>
+
+          <disk type='file' device='cdrom'>
+               <driver name='qemu' type='raw'/>
+               <source file='<%= scope.lookupvar('vsm::imgfile') %>'/>
+               <target dev='hdb' bus='ide'/>
+               <readonly/>
+          </disk>
+
+          <controller type='ide' index='0'>
+                    <alias name='ide0'/>
+                    <address type='pci' domain='0x0000' bus='0x00' slot='0x01' function='0x1'/> 
+          </controller>
+
+          <interface type='bridge'>
+                    <mac address='<%= @ctrlmac %>'/> 
+                    <source bridge='<%= @ctrlbridge %>'/>
+                    <virtualport type='openvswitch' />
+                    <target dev='<%= @ctrltap %>'/>
+                    <model type='e1000'/>
+          </interface>
+
+          <interface type='bridge'>
+                    <mac address='<%= @mgmtmac %>'/> 
+                    <source bridge='<%= @mgmtbridge %>'/>
+                    <virtualport type='openvswitch' />
+                    <target dev='<%= @mgmttap %>'/>
+                    <model type='e1000'/>
+          </interface> 
+
+          <interface type='bridge'>
+                    <mac address='<%= @pktmac %>'/> 
+                    <source bridge='<%= @pktbridge %>'/>
+                    <virtualport type='openvswitch' />
+                    <target dev='<%= @pkttap %>'/>
+                    <model type='e1000'/>
+          </interface> 
+
+          <console type='pty' tty='/dev/pts/<%= scope.lookupvar('vsm::consolepts') %>'>
+                   <source path='/dev/pts/<%= scope.lookupvar('vsm::consolepts') %>'/>
+                   <target port='0'/>
+          </console>
+      </devices>
+</domain>
