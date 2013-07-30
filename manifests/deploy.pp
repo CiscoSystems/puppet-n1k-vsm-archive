@@ -1,17 +1,17 @@
-class vsm::deploy {
+class n1k-vsm::deploy {
   include 'stdlib'
   
   #ensure tap interfaces and deploy the vsm
 
-  $ctrltap = $vsm::ctrlinterface[0]
-  $ctrlmac = $vsm::ctrlinterface[1]
-  $ctrlbridge = $vsm::ctrlinterface[2]
-  $mgmttap = $vsm::mgmtinterface[0]
-  $mgmtmac = $vsm::mgmtinterface[1]
-  $mgmtbridge = $vsm::mgmtinterface[2]
-  $pkttap = $vsm::pktinterface[0]
-  $pktmac = $vsm::pktinterface[1]
-  $pktbridge = $vsm::pktinterface[2]
+  $ctrltap = $n1k-vsm::ctrlinterface[0]
+  $ctrlmac = $n1k-vsm::ctrlinterface[1]
+  $ctrlbridge = $n1k-vsm::ctrlinterface[2]
+  $mgmttap = $n1k-vsm::mgmtinterface[0]
+  $mgmtmac = $n1k-vsm::mgmtinterface[1]
+  $mgmtbridge = $n1k-vsm::mgmtinterface[2]
+  $pkttap = $n1k-vsm::pktinterface[0]
+  $pktmac = $n1k-vsm::pktinterface[1]
+  $pktbridge = $n1k-vsm::pktinterface[2]
  
 #  tapint {"$ctrltap":
 #     bridge => $ctrlbridge,
@@ -39,28 +39,28 @@ class vsm::deploy {
          owner => 'root',
          group => 'root',
          mode => '666',
-         source => "puppet:///files/${vsm::role}_repacked.iso",
+         source => "puppet:///files/${n1k-vsm::role}_repacked.iso",
          require => File['/var/spool/vsm']
   }
 
   exec { "create_disk":
-         command => "/usr/bin/qemu-img create -f raw ${vsm::diskfile} ${vsm::disksize}G",
-         unless => "/usr/bin/virsh list | grep -c ' ${vsm::vsmname} .* running'"
+         command => "/usr/bin/qemu-img create -f raw ${n1k-vsm::diskfile} ${n1k-vsm::disksize}G",
+         unless => "/usr/bin/virsh list | grep -c ' ${n1k-vsm::vsmname} .* running'"
   }
 
-  $targetxmlfile = "/var/spool/vsm/vsm_${vsm::role}_deploy.xml"
+  $targetxmlfile = "/var/spool/vsm/vsm_${n1k-vsm::role}_deploy.xml"
   file { $targetxmlfile:
          owner => 'root',
          group => 'root',
          mode => '666',
-         content => template('vsm/vsm_vm.xml.erb'),
+         content => template('n1k-vsm/vsm_vm.xml.erb'),
          require => Exec["create_disk"]
   }
 
-  exec { "launch_${vsm::role}_vsm":
+  exec { "launch_${n1k-vsm::role}_vsm":
          command => "/usr/bin/virsh create $targetxmlfile",
-         unless => "/usr/bin/virsh list | grep -c ' ${vsm::vsmname} .* running'"
+         unless => "/usr/bin/virsh list | grep -c ' ${n1k-vsm::vsmname} .* running'"
   }
 
-  File['/var/spool/vsm'] -> File["$imgfile"] -> Exec["create_disk"] -> File["$targetxmlfile"] -> Exec["launch_${vsm::role}_vsm"]
+  File['/var/spool/vsm'] -> File["$imgfile"] -> Exec["create_disk"] -> File["$targetxmlfile"] -> Exec["launch_${n1k-vsm::role}_vsm"]
 }

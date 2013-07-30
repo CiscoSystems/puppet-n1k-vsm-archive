@@ -1,4 +1,4 @@
-class vsm(
+class n1k-vsm(
     $configureovs = false,
     $ovsbridge,
     $physicalinterfaceforovs,
@@ -27,9 +27,9 @@ class vsm(
     $imgfile  = "/var/spool/vsm/$b"
     $diskfile = "/var/spool/vsm/${role}_disk"
 
-    include vsm::ovsprep
-    include vsm::repackiso
-    include vsm::deploy
+    include n1k-vsm::ovsprep
+    include n1k-vsm::repackiso
+    include n1k-vsm::deploy
 
-    Class['vsm::ovsprep'] -> Class['vsm::repackiso'] -> Class['vsm::deploy']
+    Class['n1k-vsm::ovsprep'] -> Class['n1k-vsm::repackiso'] -> Class['n1k-vsm::deploy']
 }

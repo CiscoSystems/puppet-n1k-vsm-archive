@@ -1,4 +1,4 @@
-class vsm::repackiso {
+class n1k-vsm::repackiso {
   
-  $xx = generate('/usr/bin/env', '/usr/share/puppet/modules/vsm/bin/repackiso.py', "-i${vsm::isoimage}", "-d${vsm::domainid}", "-n${vsm::vsmname}", "-m${vsm::mgmtip}", "-s${vsm::mgmtnetmask}", "-g${vsm::mgmtgateway}", "-p${vsm::adminpasswd}", "-r${vsm::role}" , "-f/etc/puppet/files/${vsm::role}_repacked.iso")
+  $xx = generate('/usr/bin/env', '/usr/share/puppet/modules/n1k-vsm/bin/repackiso.py', "-i${n1k-vsm::isoimage}", "-d${n1k-vsm::domainid}", "-n${n1k-vsm::vsmname}", "-m${n1k-vsm::mgmtip}", "-s${n1k-vsm::mgmtnetmask}", "-g${n1k-vsm::mgmtgateway}", "-p${n1k-vsm::adminpasswd}", "-r${n1k-vsm::role}" , "-f/etc/puppet/files/${n1k-vsm::role}_repacked.iso")
 }

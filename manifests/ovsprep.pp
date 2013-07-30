@@ -1,4 +1,4 @@
-class vsm::ovsprep {
+class n1k-vsm::ovsprep {
 
   service {"networking":
        ensure  => "running",
@@ -44,7 +44,7 @@ class vsm::ovsprep {
 
   $ovsdeffile = "/etc/default/openvswitch-switch"
   file {$ovsdeffile:
-        content => template('vsm/openvswitch-default.erb')
+        content => template('n1k-vsm/openvswitch-default.erb')
   }
 
   $context = "/files/etc/network/interfaces"
@@ -56,10 +56,10 @@ class vsm::ovsprep {
           "set iface[. = '${ovsbridge}'] ${ovsbridge}",
           "set iface[. = '${ovsbridge}']/family inet",
           "set iface[. = '${ovsbridge}']/method static",
-          "set iface[. = '${ovsbridge}']/address ${vsm::nodeip}",
-          "set iface[. = '${ovsbridge}']/netmask ${vsm::nodenetmask}",
-          "set iface[. = '${ovsbridge}']/gateway ${vsm::nodegateway}",
-          "set iface[. = '${ovsbridge}']/bridge_ports ${vsm::physicalinterfaceforovs}",
+          "set iface[. = '${ovsbridge}']/address ${n1k-vsm::nodeip}",
+          "set iface[. = '${ovsbridge}']/netmask ${n1k-vsm::nodenetmask}",
+          "set iface[. = '${ovsbridge}']/gateway ${n1k-vsm::nodegateway}",
+          "set iface[. = '${ovsbridge}']/bridge_ports ${n1k-vsm::physicalinterfaceforovs}",
         ],
         notify => Service["openvswitch-switch"]
   }
@@ -89,6 +89,6 @@ class vsm::ovsprep {
        notify => Service["networking"]
   }
 
-  Exec ['rmspaceininterfaces'] -> Package["kvmpackages"] -> Exec['removenet'] -> Exec['disableautostart'] -> Package["ebtables"] -> Exec['removebridgemodule'] -> Package["ovspackages"] -> File[$ovsdeffile] -> Augeas["$vsm::ovsbridge"] 
+  Exec ['rmspaceininterfaces'] -> Package["kvmpackages"] -> Exec['removenet'] -> Exec['disableautostart'] -> Package["ebtables"] -> Exec['removebridgemodule'] -> Package["ovspackages"] -> File[$ovsdeffile] -> Augeas["$n1k-vsm::ovsbridge"] 
 
 }
