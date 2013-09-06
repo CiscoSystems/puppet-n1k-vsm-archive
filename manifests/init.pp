@@ -17,8 +17,8 @@ class n1k-vsm(
     $ctrlinterface,
     $mgmtinterface,
     $pktinterface,
-    $memory = 2048000,
-    $vcpu = 1,
+    $memory = 4096000,
+    $vcpu = 2,
     $disksize = 4)
 {
 
