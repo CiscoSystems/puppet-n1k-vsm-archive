@@ -6,11 +6,6 @@ class n1k-vsm::ovsprep {
        restart => "/etc/init.d/network restart",
   }
   
-  exec { "rmspaceininterfaces":
-       command => "/bin/sed -i 's/^[ \t]*//' /etc/network/interfaces",
-       notify => Service["networking"]
-  }
-
   $kvmpackages = ["kvm", "libvirt-bin", "virtinst"]
 
   package { "kvmpackages":
@@ -89,6 +84,6 @@ class n1k-vsm::ovsprep {
        notify => Service["networking"]
   }
 
-  Exec ['rmspaceininterfaces'] -> Package["kvmpackages"] -> Exec['removenet'] -> Exec['disableautostart'] -> Package["ebtables"] -> Exec['removebridgemodule'] -> Package["ovspackages"] -> File[$ovsdeffile] -> Augeas["$n1k-vsm::ovsbridge"] 
+  Package["kvmpackages"] -> Exec['removenet'] -> Exec['disableautostart'] -> Package["ebtables"] -> Exec['removebridgemodule'] -> Package["ovspackages"] -> File[$ovsdeffile] -> Augeas["$n1k-vsm::ovsbridge"] 
 
 }
