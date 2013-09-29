@@ -27,6 +27,12 @@ class n1k-vsm::deploy {
 #     bridge => $pktbridge,
 #     ensure => present
 #  }
+  
+  service {"networking":
+       ensure  => "running",
+       enable  => "true",
+       restart => "/etc/init.d/networking restart",
+  }
 
   file { '/var/spool/vsm':
          owner => 'root',
@@ -72,5 +78,5 @@ class n1k-vsm::deploy {
         ],
   }
 
-  File['/var/spool/vsm'] -> File["$imgfile"] -> Exec["create_disk"] -> File["$targetxmlfile"] -> Exec["launch_${n1k-vsm::role}_vsm"] -> Augeas["addtapinterfaces"]
+  File['/var/spool/vsm'] -> File["$imgfile"] -> Exec["create_disk"] -> File["$targetxmlfile"] -> Service["networking"] -> Exec["launch_${n1k-vsm::role}_vsm"] -> Augeas["addtapinterfaces"]
 }

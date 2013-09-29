@@ -1,11 +1,5 @@
 class n1k-vsm::ovsprep {
 
-  service {"networking":
-       ensure  => "running",
-       enable  => "true",
-       restart => "/etc/init.d/network restart",
-  }
-  
   $kvmpackages = ["kvm", "libvirt-bin", "virtinst"]
 
   package { "kvmpackages":
@@ -27,9 +21,9 @@ class n1k-vsm::ovsprep {
        ensure => "purged"
   }
 
-  exec { "removebridgemodule":
-       command => "/sbin/modprobe -r bridge"
-  }
+  #exec { "removebridgemodule":
+  #     command => "/sbin/modprobe -r bridge"
+  #}
 
   $ovspackages = ["openvswitch-controller", "openvswitch-brcompat" ,"openvswitch-switch" ,"openvswitch-datapath-source"]
   package { "ovspackages":
@@ -55,6 +49,7 @@ class n1k-vsm::ovsprep {
           "set iface[. = '${ovsbridge}']/netmask ${n1k-vsm::nodenetmask}",
           "set iface[. = '${ovsbridge}']/gateway ${n1k-vsm::nodegateway}",
           "set iface[. = '${ovsbridge}']/bridge_ports ${n1k-vsm::physicalinterfaceforovs}",
+          "set iface[. = '${ovsbridge}']/dns-nameservers ${n1k-vsm::nodedns}",
         ],
         notify => Service["openvswitch-switch"]
   }
@@ -84,6 +79,6 @@ class n1k-vsm::ovsprep {
        notify => Service["networking"]
   }
 
-  Package["kvmpackages"] -> Exec['removenet'] -> Exec['disableautostart'] -> Package["ebtables"] -> Exec['removebridgemodule'] -> Package["ovspackages"] -> File[$ovsdeffile] -> Augeas["$n1k-vsm::ovsbridge"] 
+  Package["kvmpackages"] -> Exec['removenet'] -> Exec['disableautostart'] -> Package["ebtables"] -> Package["ovspackages"] -> File[$ovsdeffile] -> Augeas["$n1k-vsm::ovsbridge"] 
 
 }

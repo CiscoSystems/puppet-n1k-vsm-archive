@@ -5,6 +5,7 @@ class n1k-vsm(
     $nodeip,
     $nodenetmask,
     $nodegateway,
+    $nodedns,
     $vsmname,
     $consolepts = 2,
     $isoimage,
