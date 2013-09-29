@@ -62,5 +62,15 @@ class n1k-vsm::deploy {
          unless => "/usr/bin/virsh list | grep -c ' ${n1k-vsm::vsmname} .* running'"
   }
 
-  File['/var/spool/vsm'] -> File["$imgfile"] -> Exec["create_disk"] -> File["$targetxmlfile"] -> Exec["launch_${n1k-vsm::role}_vsm"]
+  $context = "/files/etc/network/interfaces"
+  augeas { "addtapinterfaces":
+        name => "addtapinterfaces",
+        context => $context,
+        changes => [
+          "set auto[child::1 = '${ovsbridge}']/1 ${ovsbridge}",
+          "set iface[. = '${ovsbridge}']/bridge_ports '${n1k-vsm::physicalinterfaceforovs} tap0 tap1 tap2'",
+        ],
+  }
+
+  File['/var/spool/vsm'] -> File["$imgfile"] -> Exec["create_disk"] -> File["$targetxmlfile"] -> Exec["launch_${n1k-vsm::role}_vsm"] -> Augeas["addtapinterfaces"]
 }
