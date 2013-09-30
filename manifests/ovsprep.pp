@@ -51,7 +51,6 @@ class n1k-vsm::ovsprep {
           "set iface[. = '${ovsbridge}']/bridge_ports ${n1k-vsm::physicalinterfaceforovs}",
           "set iface[. = '${ovsbridge}']/dns-nameservers ${n1k-vsm::nodedns}",
         ],
-        notify => Service["openvswitch-switch"]
   }
 
   augeas { $physicalinterfaceforovs:
@@ -71,12 +70,6 @@ class n1k-vsm::ovsprep {
           "rm iface[. = '${physicalinterfaceforovs}']/bridge_ports",
         ],
         before => Augeas["${ovsbridge}"]
-  }
-
-  service {"openvswitch-switch":
-       ensure  => "running",
-       enable  => "true",
-       notify => Service["networking"]
   }
 
   Package["kvmpackages"] -> Exec['removenet'] -> Exec['disableautostart'] -> Package["ebtables"] -> Package["ovspackages"] -> File[$ovsdeffile] -> Augeas["$n1k-vsm::ovsbridge"] 
