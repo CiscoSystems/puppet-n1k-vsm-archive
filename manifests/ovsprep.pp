@@ -1,5 +1,16 @@
 class n1k-vsm::ovsprep {
 
+  exec { "removebridgemodule":
+       command => "/sbin/modprobe -r bridge"
+  }
+
+  $kernelheaders_pkg = "linux-headers-$::kernelrelease"
+  if ! defined(Package[$kernelheaders_pkg]) {
+    package {"$kernelheaders_pkg":
+      ensure => "installed"
+    }
+  }
+
   $kvmpackages = ["kvm", "libvirt-bin", "virtinst"]
 
   package { "kvmpackages":
@@ -11,7 +22,7 @@ class n1k-vsm::ovsprep {
        command => "/usr/bin/virsh net-destroy default",
        unless => "/usr/bin/virsh net-info default | grep -c 'Active: .* no'"
   }
-  
+
   exec { "disableautostart":
        command => "/usr/bin/virsh net-autostart --disable default",
        unless => "/usr/bin/virsh net-info default | grep -c 'Autostart: .* no'"
@@ -21,11 +32,7 @@ class n1k-vsm::ovsprep {
        ensure => "purged"
   }
 
-  #exec { "removebridgemodule":
-  #     command => "/sbin/modprobe -r bridge"
-  #}
-
-  $ovspackages = ["openvswitch-controller", "openvswitch-brcompat" ,"openvswitch-switch" ,"openvswitch-datapath-source"]
+  $ovspackages = ["openvswitch-brcompat" ,"openvswitch-switch"]
   package { "ovspackages":
         name => $ovspackages,
         ensure => "installed"
@@ -34,6 +41,20 @@ class n1k-vsm::ovsprep {
   $ovsdeffile = "/etc/default/openvswitch-switch"
   file {$ovsdeffile:
         content => template('n1k-vsm/openvswitch-default.erb')
+  }
+
+  service {"openvswitch-switch":
+       ensure  => "running",
+       enable  => "true",
+       hasstatus   => false, # the supplied command returns true even if it's not running
+       # Not perfect - should spot if either service is not running - but it'll do
+       status      => "/etc/init.d/openvswitch-switch status | fgrep 'is running'",
+  }
+
+  service {"networking":
+       ensure  => "running",
+       enable  => "true",
+       restart => "/etc/init.d/networking restart",
   }
 
   $context = "/files/etc/network/interfaces"
@@ -51,6 +72,7 @@ class n1k-vsm::ovsprep {
           "set iface[. = '${ovsbridge}']/bridge_ports ${n1k-vsm::physicalinterfaceforovs}",
           "set iface[. = '${ovsbridge}']/dns-nameservers ${n1k-vsm::nodedns}",
         ],
+        notify  => Service["networking"],
   }
 
   augeas { $physicalinterfaceforovs:
@@ -69,9 +91,12 @@ class n1k-vsm::ovsprep {
           "rm iface[. = '${physicalinterfaceforovs}']/gateway",
           "rm iface[. = '${physicalinterfaceforovs}']/bridge_ports",
         ],
-        before => Augeas["${ovsbridge}"]
   }
 
-  Package["kvmpackages"] -> Exec['removenet'] -> Exec['disableautostart'] -> Package["ebtables"] -> Package["ovspackages"] -> File[$ovsdeffile] -> Augeas["$n1k-vsm::ovsbridge"] 
+  exec { "AddOvsBr":
+       command => "/usr/bin/ovs-vsctl -- --may-exist add-br ${n1k-vsm::ovsbridge}",
+  }
+
+  Exec["removebridgemodule"] -> Package[$kernelheaders_pkg] -> Package["kvmpackages"] -> Exec["removenet"] -> Exec["disableautostart"] -> Package["ebtables"] -> Package["ovspackages"] -> File[$ovsdeffile] -> Service["openvswitch-switch"] -> Exec["AddOvsBr"] -> Augeas[$physicalinterfaceforovs] -> Augeas["$n1k-vsm::ovsbridge"]
 
 }
