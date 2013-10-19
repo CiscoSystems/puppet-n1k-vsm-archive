@@ -1,7 +1,8 @@
 class n1k-vsm::ovsprep {
 
   exec { "removebridgemodule":
-       command => "/sbin/modprobe -r bridge"
+       command => "/sbin/modprobe -r bridge",
+       onlyif => "/sbin/lsmod | /bin/grep -c bridge",
   }
 
   $kernelheaders_pkg = "linux-headers-$::kernelrelease"
@@ -32,10 +33,15 @@ class n1k-vsm::ovsprep {
        ensure => "purged"
   }
 
-  $ovspackages = ["openvswitch-brcompat" ,"openvswitch-switch"]
+  $ovspackages = ["openvswitch-brcompat" ,"openvswitch-switch", "openvswitch-datapath-source"]
   package { "ovspackages":
         name => $ovspackages,
         ensure => "installed"
+  }
+
+  exec { "install-openvsw-datapath":
+      command => "/usr/bin/module-assistant --text-mode auto-install openvswitch-datapath",
+      unless  => "/usr/bin/dpkg -s openvswitch-datapath-module-${::kernelrelease} | grep '^Status: install ok installed'",
   }
 
   $ovsdeffile = "/etc/default/openvswitch-switch"
@@ -46,9 +52,15 @@ class n1k-vsm::ovsprep {
   service {"openvswitch-switch":
        ensure  => "running",
        enable  => "true",
-       hasstatus   => false, # the supplied command returns true even if it's not running
+       #hasstatus  => false, # the supplied command returns true even if it's not running
        # Not perfect - should spot if either service is not running - but it'll do
-       status      => "/etc/init.d/openvswitch-switch status | fgrep 'is running'",
+       #start      => "/etc/init.d/openvswitch-switch force-reload-kmod",
+       status     => "/etc/init.d/openvswitch-switch status | fgrep 'is running'",
+  }
+
+  exec { "openvsw-forcereload":
+       command => "/etc/init.d/openvswitch-switch force-reload-kmod",
+       onlyif => "/usr/sbin/service openvswitch-switch status | /bin/grep -c 'ovs-brcompatd is not running'",
   }
 
   service {"networking":
@@ -97,6 +109,6 @@ class n1k-vsm::ovsprep {
        command => "/usr/bin/ovs-vsctl -- --may-exist add-br ${n1k-vsm::ovsbridge}",
   }
 
-  Exec["removebridgemodule"] -> Package[$kernelheaders_pkg] -> Package["kvmpackages"] -> Exec["removenet"] -> Exec["disableautostart"] -> Package["ebtables"] -> Package["ovspackages"] -> File[$ovsdeffile] -> Service["openvswitch-switch"] -> Exec["AddOvsBr"] -> Augeas[$physicalinterfaceforovs] -> Augeas["$n1k-vsm::ovsbridge"]
+  Package[$kernelheaders_pkg] -> Package["kvmpackages"] -> Exec["removenet"] -> Exec["disableautostart"] -> Package["ebtables"] -> Package["ovspackages"] -> Exec["install-openvsw-datapath"] -> File[$ovsdeffile] -> Exec["removebridgemodule"] -> Service["openvswitch-switch"] -> Exec["openvsw-forcereload"] -> Exec["AddOvsBr"] -> Augeas[$physicalinterfaceforovs] -> Augeas["$n1k-vsm::ovsbridge"]
 
 }
