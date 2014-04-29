@@ -70,7 +70,6 @@ def createOvfEnvXmlFile(domain, gateway, hostname, ip, subnet, password, vsm_mod
         st += '<Property oe:key="SvsMode" oe:value="L3" /> \n'
         st += '<Property oe:key="Password" oe:value="%s" /> \n' % (password)
         st += '<Property oe:key="HARole" oe:value="%s" /> \n' % (vsm_mode)
-        st += '<Property oe:key="EnableOpenStack" oe:value="True" /> \n'
         #if vsm_mode == "primary":
         #    st += '<Property oe:key="HARole" oe:value="%s" /> \n' % (vsm_mode)
         #else:

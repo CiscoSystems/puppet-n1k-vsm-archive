@@ -1,4 +1,5 @@
-class n1k-vsm::repackiso {
+class n1k_vsm::repackiso {
   
-  $xx = generate('/usr/bin/env', '/usr/share/puppet/modules/n1k-vsm/bin/repackiso.py', "-i${n1k-vsm::isoimage}", "-d${n1k-vsm::domainid}", "-n${n1k-vsm::vsmname}", "-m${n1k-vsm::mgmtip}", "-s${n1k-vsm::mgmtnetmask}", "-g${n1k-vsm::mgmtgateway}", "-p${n1k-vsm::adminpasswd}", "-r${n1k-vsm::role}" , "-f/etc/puppet/files/${n1k-vsm::role}_repacked.iso")
+  # cwchang to turn on later
+  #$xx = generate('/usr/bin/env', '/usr/share/puppet/modules/n1k_vsm/bin/repackiso.py', "-i${n1k_vsm::isoimage}", "-d${n1k_vsm::domainid}", "-n${n1k_vsm::vsmname}", "-m${n1k_vsm::mgmtip}", "-s${n1k_vsm::mgmtnetmask}", "-g${n1k_vsm::mgmtgateway}", "-p${n1k_vsm::adminpasswd}", "-r${n1k_vsm::role}" , "-f/etc/puppet/files/${n1k_vsm::role}_repacked.iso")
 }
