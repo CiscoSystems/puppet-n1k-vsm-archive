@@ -18,14 +18,22 @@ class n1k-vsm::ovsprep {
         ensure => "installed"
   }
 
+  #
+  # cwchang :
+  # set $cwchang_echo = "" 
+  # $CWCHANG_ECHO = ""
+  #
+  $CWCHANG_ECHO = "/bin/echo "
+  
+  
   exec { "removenet":
-       command => "/usr/bin/virsh net-destroy default",
-       unless => "/usr/bin/virsh net-info default | grep -c 'Active: .* no'"
+       command => "${CWCHANG_ECHO}/usr/bin/virsh net-destroy default",
+       unless => "${CWCHANG_ECHO}/usr/bin/virsh net-info default | grep -c 'Active: .* no'"
   }
   
   exec { "disableautostart":
-       command => "/usr/bin/virsh net-autostart --disable default",
-       unless => "/usr/bin/virsh net-info default | grep -c 'Autostart: .* no'"
+       command => "${CWCHANG_ECHO}/usr/bin/virsh net-autostart --disable default",
+       unless => "${CWCHANG_ECHO}/usr/bin/virsh net-info default | grep -c 'Autostart: .* no'"
   }
 
   package { "ebtables":
@@ -33,7 +41,7 @@ class n1k-vsm::ovsprep {
   }
 
   exec { "removebridgemodule":
-       command => "/sbin/modprobe -r bridge"
+       command => "$/sbin/modprobe -r bridge"
   }
 
   $ovspackages = ["openvswitch-controller", "openvswitch-brcompat" ,"openvswitch-switch" ,"openvswitch-datapath-source"]

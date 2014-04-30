@@ -23,11 +23,11 @@ class n1k_vsm(
 {
 
     # cwchang to turn on later the following lines
-    #$b = inline_template('<%= File.basename(isoimage) %>')
-    #$imgfile  = "/var/spool/vsm/$b"
-    #$diskfile = "/var/spool/vsm/${role}_disk"
+    $b = inline_template('<%= File.basename(isoimage) %>')
+    $imgfile  = "/var/spool/vsm/$b"
+    $diskfile = "/var/spool/vsm/${role}_disk"
 
-    #include n1k_vsm::ovsprep
+    include n1k_vsm::ovsprep
     #include n1k_vsm::repackiso
     #include n1k_vsm::deploy
 
