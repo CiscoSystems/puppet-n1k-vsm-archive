@@ -97,17 +97,17 @@ class n1k_vsm::ovsprep {
       #
       exec {"Exec_removenet":
         command => "/usr/bin/virsh net-destroy default || /bin/true",
-        unless => "/usr/bin/virsh net-info default | grep -c 'Active: .* no'",
+        unless => "/usr/bin/virsh net-info default | /bin/grep -c 'Active: .* no'",
         before => Notify["$Sync_Point_Virsh_Network"],
       }
       ->
       notify {"Exec_removenet":
-        message => "\n[INFO]\n removenet \n command=/usr/bin/virsh net-destroy default || /bin/true \n unless=/usr/bin/virsh net-info default | grep -c 'Active: .* no'\n",
+        message => "\n[INFO]\n removenet \n command=/usr/bin/virsh net-destroy default || /bin/true \n unless=/usr/bin/virsh net-info default | /bin/grep -c 'Active: .* no'\n",
       }
 
       exec {"Exec_disableautostart":
         command => "/usr/bin/virsh net-autostart --disable default || /bin/true",
-        unless => "/usr/bin/virsh net-info default | grep -c 'Autostart: .* no'",
+        unless => "/usr/bin/virsh net-info default | /bin/grep -c 'Autostart: .* no'",
         before => Notify["$Sync_Point_Virsh_Network"],
       }
       ->
@@ -127,7 +127,7 @@ class n1k_vsm::ovsprep {
       }
 
       package {"Package_openvswitch":
-        name   => "$openvswitch",
+        name   => "openvswitch",
         ensure => "installed",
       }
       ->
