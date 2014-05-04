@@ -209,6 +209,7 @@ class n1k_vsm::ovsprep {
       #
       exec {"Exec_rebridge_$intf":
         command => "/usr/sbin/brctl show | /bin/grep $intf | /bin/sed 's/[\t ].*//' > $phy_bridge; /usr/bin/test -s $phy_bridge && /usr/sbin/brctl delif \$(cat $phy_bridge) $intf || /bin/true; /usr/bin/ovs-vsctl -- --may-exist add-port $n1k_vsm::ovsbridge $intf; /bin/rm -f $phy_bridge",
+        notify => Service["Service_network"],
       }
       ->
       notify {"Exec_rebridge_$intf":
