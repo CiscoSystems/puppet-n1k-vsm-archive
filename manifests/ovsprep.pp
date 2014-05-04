@@ -156,11 +156,71 @@ class n1k_vsm::ovsprep {
       notify {"Exec_AddOvsBr":
         message => "\n[INFO]\n Exec_AddOvsBr \n command=/usr/bin/ovs-vsctl -- --may-exist add-br $n1k_vsm::ovsbridge\n",
       }
+
       #
-      # order enforcement
+      # Modify Ovs bridge inteface configuation file
+      #
+      augeas {"Augeas_modify_ifcfg-$n1k_vsm::ovsbridge":
+        name => "$n1k_vsm::ovsbridge",
+        context => "/files/etc/sysconfig/network-scripts/ifcfg-$n1k_vsm::ovsbridge",
+        changes => [
+          "set DEVICE $n1k_vsm::ovsbridge", 
+          "set BOOTPROTO none",
+          "set IPADDR $n1k_vsm::nodeip",
+          "set NETMASK $n1k_vsm::nodenetmask",
+          "set ONBOOT yes",
+          "set TYPE OVSBridge",
+          "set DEVICETYPE ovs",
+        ],
+        notify => Service["Service_network"],
+      }
+      ->
+      notify {"Augeas_modify_ifcfg-$n1k_vsm::ovsbridge":
+        message => "\n[INFO]\n Augeas_modify_ifcfg-$n1k_vsm::ovsbridge \n name=$n1k_vsm::ovsbridge \n context=/files/etc/sysconfig/network-scripts/ifcfg-$n1k_vsm::ovsbridge \n",
+      }
+
+      #
+      # Modify Physical Interface config file
+      #
+      augeas {"Augeas_modify_ifcfg-$n1k_vsm::physicalinterfaceforovs":
+        name => "$n1k_vsm::physicalinterfaceforovs",
+        context => "/files/etc/sysconfig/network-scripts/ifcfg-$n1k_vsm::physicalinterfaceforovs",
+        changes => [
+          "set ONBOOT yes",
+          "set BOOTPROTO none",
+          "set TYPE OVSPort",
+          "set DEVICETYPE ovs",
+          "set OVS_BRIDGE $n1k_vsm::ovsbridge",
+          "rm IPADDR",
+          "rm NETMASK",
+        ],
+      }
+      ->
+      notify {"Augeas_modify_ifcfg-$n1k_vsm::physicalinterfaceforovs":
+        message => "\n[INFO]\n Augeas_modify_ifcfg-$n1k_vsm::physicalinterfaceforovs \n name=$n1k_vsm::physicalinterfacefor \n context=/files/etc/sysconfig/network-scripts/ifcfg-$n1k_vsm::physicalinterfaceforovs\n",
+      }
+
+      $intf=$n1k_vsm::physicalinterfaceforovs
+      $phy_bridge="/tmp/phy_bridge"
+      #
+      # Move physical port around from host bridge if any, to ovs bridge
+      # I have not figured out how in Puppet world to pass environmental variable around
+      # Pardon for nonelgenance 
+      #
+      exec {"Exec_rebridge_$intf":
+        command => "/usr/sbin/brctl show | /bin/grep $intf | /bin/sed 's/[\t ].*//' > $phy_bridge; /usr/bin/test -s $phy_bridge && /usr/sbin/brctl delif \$(cat $phy_bridge) $intf || /bin/true; /usr/bin/ovs-vsctl -- --may-exist add-port $n1k_vsm::ovsbridge $intf; /bin/rm -f $phy_bridge",
+      }
+      ->
+      notify {"Exec_rebridge_$intf":
+        message => "\n[INFO]\n Exec_rebridge_$intf",
+      }
+
+      #
+      # Order enforcement logic
       # 
 
-      Notify["$Sync_Point_KVM"] -> Notify["$Sync_Point_Virsh_Network"] -> Package["Package_ebtables"] -> Package["Package_openvswitch"] -> Service["Service_openvswitch"] -> Exec["Exec_AddOvsBr"]
+      Notify["$Sync_Point_KVM"] -> Notify["$Sync_Point_Virsh_Network"] -> Package["Package_ebtables"] -> Package["Package_openvswitch"] -> Service["Service_openvswitch"] -> Exec["Exec_AddOvsBr"]->Augeas["Augeas_modify_ifcfg-$n1k_vsm::ovsbridge"]->Augeas["Augeas_modify_ifcfg-$n1k_vsm::physicalinterfaceforovs"]->Exec["Exec_rebridge_$intf"]
+
     }
     "Ubuntu": {
     }
