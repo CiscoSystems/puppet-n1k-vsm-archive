@@ -22,16 +22,9 @@ class n1k_vsm(
     $disksize = 4)
 {
 
-    # cwchang to turn on later the following lines
-    $b = inline_template('<%= File.basename(isoimage) %>')
-    $imgfile  = "/var/spool/vsm/$b"
-    $diskfile = "/var/spool/vsm/${role}_disk"
-   
     include n1k_vsm::pkgprep_ovscfg
     include n1k_vsm::vsmprep
-    #include n1k_vsm::repackiso
-    #include n1k_vsm::deploy
+    include n1k_vsm::deploy
 
-    #Class['n1k_vsm::ovsprep'] -> Class['n1k_vsm::repackiso'] -> Class['n1k_vsm::deploy']
-    Class['n1k_vsm::pkgprep_ovscfg'] -> Class['n1k_vsm::vsmprep']
+    Class['n1k_vsm::pkgprep_ovscfg'] -> Class['n1k_vsm::vsmprep'] -> Class['n1k_vsm::deploy']
 }
