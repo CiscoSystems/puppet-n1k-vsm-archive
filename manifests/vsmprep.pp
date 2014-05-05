@@ -33,7 +33,7 @@ class n1k_vsm::vsmprep {
     source => "puppet:///modules/n1k_vsm/$VSM_ISO_NAME",
   }
   ->
-  notify {"Notify_$VSM_ISO_NAME":
+  notify {"Notify_File_$VSM_ISO_NAME":
     message => "[INFO]Notify_$VSM_ISO_NAME \n path=$VSM_ISO_DIR ensure=directory \n owner=root \n group=root mode=664\n",
   }
 
@@ -53,22 +53,21 @@ class n1k_vsm::vsmprep {
     source => "puppet:///modules/n1k_vsm/$VSM_REPACKAGE_SCRIPT_NAME",
   }
   ->
-  notify {"Notify_$VSM_REPACKAGE_SCRIPT_NAME":
+  notify {"Notify_File_$VSM_REPACKAGE_SCRIPT_NAME":
     message => "[INFO]Notify_$VSM_REPACKAGE_SCRIPT_NAME \n path=$VSM_REPACKAGE_SCRIPT \n ensure=present \n owner=root \n group=root \n mode=774 source=puppet:///modules/n1k_vsm/$VSM_REPACKAGE_SCRIPT_NAME"
   }
 
   #
-  # Now generate VM xml file and repackage the iso
+  # Now generate ovf xml file and repackage the iso
   #
   exec {"Exec_$VSM_REPACKAGE_SCRIPT_NAME":
-    command => "$VSM_REPACKAGE_SCRIPT -i${n1k_vsm::isoimage} -d${n1k_vsm::domainid}-n${n1k_vsm::vsmname} -m${n1k_vsm::mgmtip} -s${n1k_vsm::mgmtnetmask} -g${n1k_vsm::mgmtgateway} -p${n1k_vsm::adminpasswd} -r${n1k_vsm::role} -f/etc/puppet/files/${n1k_vsm::role}_repacked.iso",
+    command => "${VSM_REPACKAGE_SCRIPT}1 -i$VSM_ISO -d${n1k_vsm::domainid} -n${n1k_vsm::vsmname} -m${n1k_vsm::mgmtip} -s${n1k_vsm::mgmtnetmask} -g${n1k_vsm::mgmtgateway} -p${n1k_vsm::adminpasswd} -r${n1k_vsm::role} -f/tmp/${n1k_vsm::role}_repacked.iso > /tmp/Z",
+  }
+  ->
+  notify {"Notify_Exec_$VSM_REPACKAGE_SCRIPT_NAME":
+    message => "[INFO]Exec_$VSM_REPACKAGE_SCRIPT_NAME\n command=$VSM_REPACKAGE_SCRIPT -i$VSM_ISO -d${n1k_vsm::domainid} -n${n1k_vsm::vsmname} -m${n1k_vsm::mgmtip} -s${n1k_vsm::mgmtnetmask} -g${n1k_vsm::mgmtgateway} -p${n1k_vsm::adminpasswd} -r${n1k_vsm::role} -f/tmp/${n1k_vsm::role}_repacked.iso > /tmp/Z",
   }
 
-  #$xx = generate('/usr/bin/env', '/usr/share/puppet/modules/n1k_vsm/bin/repackiso.py', "-i${n1k_vsm::isoimage}", "-d${n1k_vsm::domainid}", "-n${n1k_vsm::vsmname}", "-m${n1k_vsm::mgmtip}", "-s${n1k_vsm::mgmtnetmask}", "-g${n1k_vsm::mgmtgateway}", "-p${n1k_vsm::adminpasswd}", "-r${n1k_vsm::role}" , "-f/etc/puppet/files/${n1k_vsm::role}_repacked.iso")
+  File["File_VSM_ISO_DIR"]-> File["File_$VSM_ISO_NAME"]->File["FILE_$VSM_REPACKAGE_SCRIPT_NAME"]->Exec["Exec_$VSM_REPACKAGE_SCRIPT_NAME"]
 
-  File["File_VSM_ISO_DIR"]-> File["File_$VSM_ISO_NAME"]->File["FILE_$VSM_REPACKAGE_SCRIPT_NAME"]
-
-    
-  # cwchang to turn on later
-  #$xx = generate('/usr/bin/env', '/usr/share/puppet/modules/n1k_vsm/bin/repackiso.py', "-i${n1k_vsm::isoimage}", "-d${n1k_vsm::domainid}", "-n${n1k_vsm::vsmname}", "-m${n1k_vsm::mgmtip}", "-s${n1k_vsm::mgmtnetmask}", "-g${n1k_vsm::mgmtgateway}", "-p${n1k_vsm::adminpasswd}", "-r${n1k_vsm::role}" , "-f/etc/puppet/files/${n1k_vsm::role}_repacked.iso")
 }
