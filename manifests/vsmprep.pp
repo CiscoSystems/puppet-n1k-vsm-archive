@@ -65,7 +65,7 @@ class n1k_vsm::vsmprep {
   }
   ->
   notify {"Notify_Exec_$VSM_REPACKAGE_SCRIPT_NAME":
-    message => "[INFO]Exec_$VSM_REPACKAGE_SCRIPT_NAME\n command=$VSM_REPACKAGE_SCRIPT -i$VSM_ISO -d${n1k_vsm::domainid} -n${n1k_vsm::vsmname} -m${n1k_vsm::mgmtip} -s${n1k_vsm::mgmtnetmask} -g${n1k_vsm::mgmtgateway} -p${n1k_vsm::adminpasswd} -r${n1k_vsm::role} -f${VSM_ISO_DIR}/${n1k_vsm::role}_repacked.iso > /tmp/Z",
+    message => "[INFO]Exec_$VSM_REPACKAGE_SCRIPT_NAME\n command=$VSM_REPACKAGE_SCRIPT -i$VSM_ISO -d${n1k_vsm::domainid} -n${n1k_vsm::vsmname} -m${n1k_vsm::mgmtip} -s${n1k_vsm::mgmtnetmask} -g${n1k_vsm::mgmtgateway} -p${n1k_vsm::adminpasswd} -r${n1k_vsm::role} -f${VSM_ISO_DIR}/${n1k_vsm::role}_repacked.iso",
   }
 
   File["File_VSM_ISO_DIR"]-> File["File_$VSM_ISO_NAME"]->File["FILE_$VSM_REPACKAGE_SCRIPT_NAME"]->Exec["Exec_$VSM_REPACKAGE_SCRIPT_NAME"]
