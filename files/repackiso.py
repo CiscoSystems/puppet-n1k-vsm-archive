@@ -96,23 +96,23 @@ def main():
     mntdir = tempfile.mkdtemp()
     ddir = tempfile.mkdtemp()
 
-    cret = Command('sudo /bin/mount -o loop -t iso9660 %s %s' % (isoimg, mntdir)).run()
+    cret = Command('/bin/mount -o loop -t iso9660 %s %s' % (isoimg, mntdir)).run()
     #logger.info("%s %s" % (cret.output, cret.error))
-    cret = Command('cp -r %s/* %s' % (mntdir, ddir)).run()
-    #logger.info("%s %s" % (cret.output, cret.error))
-
-    cret = Command('sudo /bin/umount %s' % (mntdir)).run()
+    cret = Command('/bin/cp -r %s/* %s' % (mntdir, ddir)).run()
     #logger.info("%s %s" % (cret.output, cret.error))
 
-    cret = Command('cp %s %s/ovf-env.xml' % (ovf_f.name, ddir)).run()
+    cret = Command('/bin/umount %s' % (mntdir)).run()
+    #logger.info("%s %s" % (cret.output, cret.error))
+
+    cret = Command('/bin/cp %s %s/ovf-env.xml' % (ovf_f.name, ddir)).run()
     #logger.info("%s %s" % (cret.output, cret.error))
 
 
     if os.path.exists('%s/isolinux/isolinux.bin' % (ddir)):
-        cret = Command('cd %s; sudo /usr/bin/mkisofs -uid 0 -gid 0 -J -R -A Cisco_Nexus_1000V_VSM -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table -o %s .' % (ddir, repackediso)).run()
+        cret = Command('cd %s; /usr/bin/mkisofs -uid 0 -gid 0 -J -R -A Cisco_Nexus_1000V_VSM -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table -o %s .' % (ddir, repackediso)).run()
         #logger.info("%s %s" % (cret.output, cret.error))
     else:
-        cret = Command('cd %s; sudo /usr/bin/mkisofs -uid 0 -gid 0 -J -R -A Cisco_Nexus_1000V_VSM -b boot/grub/iso9660_stage1_5 -no-emul-boot -boot-load-size 4 -boot-info-table -o %s .' % (ddir, repackediso)).run()
+        cret = Command('cd %s; /usr/bin/mkisofs -uid 0 -gid 0 -J -R -A Cisco_Nexus_1000V_VSM -b boot/grub/iso9660_stage1_5 -no-emul-boot -boot-load-size 4 -boot-info-table -o %s .' % (ddir, repackediso)).run()
         #logger.info("%s %s" % (cret.output, cret.error))
 
     os.unlink(ovf_f.name)
