@@ -1,7 +1,7 @@
 class n1k_vsm(
     $configureovs = false,
     $ovsbridge,
-    $physicalinterfaceforovs,
+    $physicalinterfaceforovs = 'eth5',
     $nodeip,
     $nodenetmask,
     $nodegateway,
@@ -26,10 +26,12 @@ class n1k_vsm(
     $b = inline_template('<%= File.basename(isoimage) %>')
     $imgfile  = "/var/spool/vsm/$b"
     $diskfile = "/var/spool/vsm/${role}_disk"
-
-    include n1k_vsm::ovsprep
+   
+    include n1k_vsm::pkgprep_ovscfg
+    include n1k_vsm::vsmprep
     #include n1k_vsm::repackiso
     #include n1k_vsm::deploy
 
     #Class['n1k_vsm::ovsprep'] -> Class['n1k_vsm::repackiso'] -> Class['n1k_vsm::deploy']
+    Class['n1k_vsm::pkgprep_ovscfg'] -> Class['n1k_vsm::vsmprep']
 }
