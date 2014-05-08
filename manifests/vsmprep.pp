@@ -61,7 +61,7 @@ class n1k_vsm::vsmprep {
   # Now generate ovf xml file and repackage the iso
   #
   exec {"Exec_$VSM_REPACKAGE_SCRIPT_NAME":
-    command => "${VSM_REPACKAGE_SCRIPT}1 -i$VSM_ISO -d${n1k_vsm::domainid} -n${n1k_vsm::vsmname} -m${n1k_vsm::mgmtip} -s${n1k_vsm::mgmtnetmask} -g${n1k_vsm::mgmtgateway} -p${n1k_vsm::adminpasswd} -r${n1k_vsm::role} -f${VSM_ISO_DIR}/${n1k_vsm::role}_repacked.iso",
+    command => "${VSM_REPACKAGE_SCRIPT} -i$VSM_ISO -d${n1k_vsm::domainid} -n${n1k_vsm::vsmname} -m${n1k_vsm::mgmtip} -s${n1k_vsm::mgmtnetmask} -g${n1k_vsm::mgmtgateway} -p${n1k_vsm::adminpasswd} -r${n1k_vsm::role} -f${VSM_ISO_DIR}/${n1k_vsm::role}_repacked.iso",
   }
   ->
   notify {"Notify_Exec_$VSM_REPACKAGE_SCRIPT_NAME":
