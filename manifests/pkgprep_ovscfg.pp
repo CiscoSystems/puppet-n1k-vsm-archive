@@ -13,11 +13,11 @@ class n1k_vsm::pkgprep_ovscfg {
       service {"Service_network":
         name   => "network",
         ensure => "running",
-        restart => "/sbin/service network restart",
+        restart => "/sbin/service network restart || /bin/true",
       }
       ->
-      notify {"Service_network":
-        message => "\n[INFO]\n Service_network \n name=network \n ensure=running \n enable=true \n restart=/sbin/service network restart\n",
+      exec {"Debug_Service_network":
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Service_network\n name=network\n ensure=running\n enable=true\n restart=/sbin/service network restart\n\" >> ${n1k_vsm::Debug_Log}",
       }
       # VSM dependent packages installation section
       #
@@ -36,8 +36,8 @@ class n1k_vsm::pkgprep_ovscfg {
         before => Notify["$Sync_Point_KVM"],
       }
       ->
-      notify {"qemu-kvm-rhev":
-        message => "\n[INFO]\n Package_qemu-kvm-rhev \n name=qemu-kvm-rhev \n ensure=installed\n",
+      exec {"Debug_Package_qemu-kvm-rhev":
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_qemu-kvm-rhev \n name=qemu-kvm-rhev \n ensure=installed\n\" >> ${n1k_vsm::Debug_Log}",
       }
 
       package {"Package_virt-viewer":
@@ -46,8 +46,8 @@ class n1k_vsm::pkgprep_ovscfg {
         before => Notify["$Sync_Point_KVM"],
       }
       ->
-      notify {"Package_virt-viewer": 
-        message => "\n[INFO]\n Package_virt-viewer \n name=virt-viewer \n ensure=installed \n",
+      exec {"Debug_Package_virt-viewer": 
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_virt-viewer \n name=virt-viewer \n ensure=installed \n\" >> ${n1k_vsm::Debug_Log}",
       }
     
       package {"Package_virt-manager":
@@ -56,8 +56,8 @@ class n1k_vsm::pkgprep_ovscfg {
         before => Notify["$Sync_Point_KVM"],
       }
       ->
-      notify {"Package_virt-manager": 
-        message => "\n[INFO]\n Package_virt-manager \n name=virt-manager \n ensure=installed\n",
+      exec {"Debug_Package_virt-manager": 
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_virt-manager \n name=virt-manager \n ensure=installed\n\" >> ${n1k_vsm::Debug_Log}",
       }
     
       package {"Package_libvirt":
@@ -66,8 +66,8 @@ class n1k_vsm::pkgprep_ovscfg {
         before => Notify["$Sync_Point_KVM"],
       }
       ->
-      notify {"Package_libvirt": 
-        message => "\n[INFO]\n Package_libvirt \n name=libvirt \n ensure=installed\n",
+      exec {"Debug_Package_libvirt": 
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_libvirt \n name=libvirt \n ensure=installed\n\" >> ${n1k_vsm::Debug_Log}",
       }
     
       package {"Package_libvirt-python":
@@ -76,8 +76,8 @@ class n1k_vsm::pkgprep_ovscfg {
         before => Notify["$Sync_Point_KVM"],
       }
       ->
-      notify {"Package_libvirt-python": 
-        message => "\n[INFO]\n Package_libvirt-python \n name=libvirt-python \n ensure=installed\n",
+      exec {"Debug_Package_libvirt-python": 
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_libvirt-python \n name=libvirt-python \n ensure=installed\n\" >> ${n1k_vsm::Debug_Log}",
       }
     
       package {"Package_python-virtinst":
@@ -86,8 +86,8 @@ class n1k_vsm::pkgprep_ovscfg {
         before => Notify["$Sync_Point_KVM"],
       }
       ->
-      notify {"Package_python-virtinst": 
-        message => "\n[INFO]\n Package_python-virtinst \n name=python-virtinst \n ensure=installed \n",
+      exec {"Debug_Package_python-virtinst": 
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_python-virtinst \n name=python-virtinst \n ensure=installed \n\" >> ${n1k_vsm::Debug_Log}",
       }
 
       package {"Package_genisoimage":
@@ -96,8 +96,8 @@ class n1k_vsm::pkgprep_ovscfg {
         before => Notify["$Sync_Point_KVM"],
       }
       ->
-      notify {"Package_genisoimage": 
-        message => "\n[INFO]\n Package_genisoimage \n name=genisoimage \n ensure=installed \n",
+      exec {"Debug_Package_genisoimage": 
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_genisoimage \n name=genisoimage \n ensure=installed \n\" >> ${n1k_vsm::Debug_Log}",
       }
 
 
@@ -112,8 +112,8 @@ class n1k_vsm::pkgprep_ovscfg {
         before => Notify["$Sync_Point_Virsh_Network"],
       }
       ->
-      notify {"Exec_removenet":
-        message => "\n[INFO]\n removenet \n command=/usr/bin/virsh net-destroy default || /bin/true \n unless=/usr/bin/virsh net-info default | /bin/grep -c 'Active: .* no'\n",
+      exec {"Debug_Exec_removenet":
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Exec_removenet \n command=/usr/bin/virsh net-destroy default || /bin/true \n unless=/usr/bin/virsh net-info default | /bin/grep -c 'Active: .* no'\n\" >> ${n1k_vsm::Debug_Log}",
       }
 
       exec {"Exec_disableautostart":
@@ -122,8 +122,8 @@ class n1k_vsm::pkgprep_ovscfg {
         before => Notify["$Sync_Point_Virsh_Network"],
       }
       ->
-      notify {"Exec_disableautostart":
-        message => "\n[INFO]\n Exec_disableautostart' \n command=/usr/bin/virsh net-autostart --disable default || /bin/true \n unless /usr/bin/virsh net-info default | grep -c 'Autostart: .* no'",
+      exec {"Debug_Exec_disableautostart":
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Exec_disableautostart' \n command=/usr/bin/virsh net-autostart --disable default || /bin/true \n unless /usr/bin/virsh net-info default | grep -c 'Autostart: .* no'\" >> ${n1k_vsm::Debug_Log}",
       }
     
       notify{"$Sync_Point_Virsh_Network":}
@@ -133,8 +133,8 @@ class n1k_vsm::pkgprep_ovscfg {
         ensure => "purged",
       }
       ->
-      notify {"Package_ebtables":
-        message => "\n[INFO]\n Package_ebtables \n name=ebtables \n ensure=purged\n",
+      exec {"Debug_Package_ebtables":
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_ebtables \n name=ebtables \n ensure=purged\n\" >> ${n1k_vsm::Debug_Log}",
       }
 
       package {"Package_openvswitch":
@@ -142,8 +142,8 @@ class n1k_vsm::pkgprep_ovscfg {
         ensure => "installed",
       }
       ->
-      notify {"Package_openvswitch": 
-        message => "[INFO]\n Package_openvswitch name=openvswitch \n ensure=installed\n",
+      exec {"Debug_Package_openvswitch": 
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_openvswitch \n name=openvswitch \n ensure=installed\n\" >> ${n1k_vsm::Debug_Log}",
       }
       # 
       # bring up OVS and perform interface configuration 
@@ -155,8 +155,8 @@ class n1k_vsm::pkgprep_ovscfg {
         enable => "true",
       }
       ->
-      notify {"Service_openvswitch": 
-        message => "\n[INFO]\n Service_openvswitch \n name=openvswitch \n ensure=running \n enable=true",
+      exec {"Debug_Service_openvswitch": 
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Service_openvswitch \n name=openvswitch \n ensure=running \n enable=true\n\" >> ${n1k_vsm::Debug_Log}",
       }
 
     
@@ -164,14 +164,14 @@ class n1k_vsm::pkgprep_ovscfg {
         command => "/usr/bin/ovs-vsctl -- --may-exist add-br $n1k_vsm::ovsbridge",
       }
       ->
-      notify {"Exec_AddOvsBr":
-        message => "\n[INFO]\n Exec_AddOvsBr \n command=/usr/bin/ovs-vsctl -- --may-exist add-br $n1k_vsm::ovsbridge\n",
+      exec {"Debug_Exec_AddOvsBr":
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Exec_AddOvsBr \n command=/usr/bin/ovs-vsctl -- --may-exist add-br $n1k_vsm::ovsbridge \n \" >> ${n1k_vsm::Debug_Log}",
       }
 
       #
       # Modify Ovs bridge inteface configuation file
       #
-      augeas {"Augeas_modify_ifcfg-$n1k_vsm::ovsbridge":
+      augeas {"Augeas_modify_ifcfg-ovsbridge":
         name => "$n1k_vsm::ovsbridge",
         context => "/files/etc/sysconfig/network-scripts/ifcfg-$n1k_vsm::ovsbridge",
         changes => [
@@ -186,14 +186,14 @@ class n1k_vsm::pkgprep_ovscfg {
         notify => Service["Service_network"],
       }
       ->
-      notify {"Augeas_modify_ifcfg-$n1k_vsm::ovsbridge":
-        message => "\n[INFO]\n Augeas_modify_ifcfg-$n1k_vsm::ovsbridge \n name=$n1k_vsm::ovsbridge \n context=/files/etc/sysconfig/network-scripts/ifcfg-$n1k_vsm::ovsbridge \n",
+      exec {"Debug_Augeas_modify_ifcfg-ovsbridge":
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Augeas_modify_ifcfg-$n1k_vsm::ovsbridge \n name=$n1k_vsm::ovsbridge \n context=/files/etc/sysconfig/network-scripts/ifcfg-$n1k_vsm::ovsbridge \n\" >> ${n1k_vsm::Debug_Log}",
       }
 
       #
       # Modify Physical Interface config file
       #
-      augeas {"Augeas_modify_ifcfg-$n1k_vsm::physicalinterfaceforovs":
+      augeas {"Augeas_modify_ifcfg-physicalinterfaceforovs":
         name => "$n1k_vsm::physicalinterfaceforovs",
         context => "/files/etc/sysconfig/network-scripts/ifcfg-$n1k_vsm::physicalinterfaceforovs",
         changes => [
@@ -207,8 +207,8 @@ class n1k_vsm::pkgprep_ovscfg {
         ],
       }
       ->
-      notify {"Augeas_modify_ifcfg-$n1k_vsm::physicalinterfaceforovs":
-        message => "\n[INFO]\n Augeas_modify_ifcfg-$n1k_vsm::physicalinterfaceforovs \n name=$n1k_vsm::physicalinterfacefor \n context=/files/etc/sysconfig/network-scripts/ifcfg-$n1k_vsm::physicalinterfaceforovs\n",
+      exec {"Debug_Augeas_modify_ifcfg-physicalinterfaceforovs":
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Augeas_modify_ifcfg-physicalinterfaceforovs \n name=$n1k_vsm::physicalinterfaceforovs \n context=/files/etc/sysconfig/network-scripts/ifcfg-$n1k_vsm::physicalinterfaceforovs\n\" >> ${n1k_vsm::Debug_Log}",
       }
 
       $intf=$n1k_vsm::physicalinterfaceforovs
@@ -216,22 +216,22 @@ class n1k_vsm::pkgprep_ovscfg {
       #
       # Move physical port around from host bridge if any, to ovs bridge
       # I have not figured out how in Puppet world to pass environmental variable around
-      # Pardon for nonelgenance 
+      # Pardon for not being elegant 
       #
-      exec {"Exec_rebridge_$intf":
+      exec {"Exec_rebridge":
         command => "/usr/sbin/brctl show | /bin/grep $intf | /bin/sed 's/[\t ].*//' > $phy_bridge; /usr/bin/test -s $phy_bridge && /usr/sbin/brctl delif \$(cat $phy_bridge) $intf || /bin/true; /usr/bin/ovs-vsctl -- --may-exist add-port $n1k_vsm::ovsbridge $intf; /bin/rm -f $phy_bridge",
         notify => Service["Service_network"],
       }
       ->
-      notify {"Exec_rebridge_$intf":
-        message => "\n[INFO]\n Exec_rebridge_$intf",
+      exec {"Debug_Exec_rebridge":
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Exec_rebridge\" >> ${n1k_vsm::Debug_Log}",
       }
 
       #
       # Order enforcement logic
       # 
 
-      Notify["$Sync_Point_KVM"] -> Notify["$Sync_Point_Virsh_Network"] -> Package["Package_ebtables"] -> Package["Package_openvswitch"] -> Service["Service_openvswitch"] -> Exec["Exec_AddOvsBr"]->Augeas["Augeas_modify_ifcfg-$n1k_vsm::ovsbridge"]->Augeas["Augeas_modify_ifcfg-$n1k_vsm::physicalinterfaceforovs"]->Exec["Exec_rebridge_$intf"]
+      Notify["$Sync_Point_KVM"] -> Notify["$Sync_Point_Virsh_Network"] -> Package["Package_ebtables"] -> Package["Package_openvswitch"] -> Service["Service_openvswitch"] -> Exec["Exec_AddOvsBr"]->Augeas["Augeas_modify_ifcfg-ovsbridge"]->Augeas["Augeas_modify_ifcfg-physicalinterfaceforovs"]->Exec["Exec_rebridge"]
 
     }
     "Ubuntu": {

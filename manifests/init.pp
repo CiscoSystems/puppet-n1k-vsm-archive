@@ -22,9 +22,24 @@ class n1k_vsm(
     $disksize = 4)
 {
 
+    exec {"eth5":
+      command => "/bin/echo $physicalinterfaceforovs > /tmp/ethX",
+    }
+
+    $Debug_Print = "/usr/bin/printf"
+    $Debug_Log = "/tmp/n1kv_vsm_puppet.log"
+
+    #
+    # Clean up debug log
+    #
+    file {"File_$Debug_Log":
+      path => $Debug_Log,
+      ensure => "absent",
+    }
+
     include n1k_vsm::pkgprep_ovscfg
     include n1k_vsm::vsmprep
     include n1k_vsm::deploy
 
-    Class['n1k_vsm::pkgprep_ovscfg'] -> Class['n1k_vsm::vsmprep'] -> Class['n1k_vsm::deploy']
+    File["File_$Debug_Log"] -> Class['n1k_vsm::pkgprep_ovscfg'] -> Class['n1k_vsm::vsmprep'] -> Class['n1k_vsm::deploy']
 }
