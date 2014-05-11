@@ -62,7 +62,7 @@ class n1k_vsm::deploy {
   }
   ->
   exec {"Debug_Exec_Launch_VSM":
-    command => "${n1k_vsm::Debug_Print} \"[INFO]\nExec_Launch_VSM \n command=/bin/echo /usr/bin/virsh create $targetxmlfile \n unless=usr/bin/virsh list | grep -c ' ${n1k_vsm::vsmname} .* running' \" >> ${n1k_vsm::Debug_Log}",
+    command => "${n1k_vsm::Debug_Print} \"[INFO]\nExec_Launch_VSM \n command=/bin/echo /usr/bin/virsh create $targetxmlfile \n unless=/usr/bin/virsh list | grep -c ' ${n1k_vsm::vsmname} .* running' \" >> ${n1k_vsm::Debug_Log}",
   }
 
   Exec["Exec_create_disk"] -> File["File_Target_XML_File"] -> Exec["Exec_Launch_VSM"]
