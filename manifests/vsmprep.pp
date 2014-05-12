@@ -13,7 +13,7 @@ class n1k_vsm::vsmprep {
     mode  => "664",
   }
   ->
-  exec {"File_VSM_ISO_DIR_debug":
+  exec {"Debug_File_VSM_ISO_DIR":
     command => "${n1k_vsm::Debug_Print} \"[INFO]\n File_VSM_ISO_DIR\n path=$VSM_VSM_DIR ensure=directory \n owner=root \n group=root \n mode=664 \n\" >> ${n1k_vsm::Debug_Log}",
   }
 

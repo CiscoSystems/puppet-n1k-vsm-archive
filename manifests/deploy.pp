@@ -57,7 +57,7 @@ class n1k_vsm::deploy {
   exec { "Exec_Launch_VSM":
          #command => "/usr/bin/virsh create $targetxmlfile",
          # cwchang: turn on later when we deal with real machine
-         command => "/bin/echo /usr/bin/virsh create $targetxmlfile",
+         command => "/usr/bin/virsh create $targetxmlfile",
          unless => "/usr/bin/virsh list | grep -c ' ${n1k_vsm::vsmname} .* running'",
   }
   ->
