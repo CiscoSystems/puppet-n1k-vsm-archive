@@ -1,7 +1,7 @@
 <domain type='kvm' >
-     <name><%= scope.lookupvar('n1k-vsm::vsmname') %></name>
-     <memory unit='KiB'><%= scope.lookupvar('n1k-vsm::memory') %></memory> 
-     <vcpu placement='static'> <%= scope.lookupvar('n1k-vsm::vcpu') %></vcpu>
+     <name><%= scope.lookupvar('n1k_vsm::vsmname') %></name>
+     <memory unit='KiB'><%= scope.lookupvar('n1k_vsm::memory') %></memory> 
+     <vcpu placement='static'> <%= scope.lookupvar('n1k_vsm::vcpu') %></vcpu>
 
      <os>
           <type arch='x86_64' machine='pc-1.0'>hvm</type> 
@@ -20,13 +20,13 @@
           <emulator>/usr/bin/qemu-system-x86_64</emulator> 
           <disk type='file' device='disk'>
                <driver name='qemu' type='raw'/>
-               <source file='<%= scope.lookupvar('n1k-vsm::diskfile') %>'/> 
+               <source file='<%= scope.lookupvar('n1k_vsm::diskfile') %>'/> 
                <target dev='hda' bus='ide'/>
           </disk>
 
           <disk type='file' device='cdrom'>
                <driver name='qemu' type='raw'/>
-               <source file='<%= scope.lookupvar('n1k-vsm::imgfile') %>'/>
+               <source file='<%= scope.lookupvar('n1k_vsm::imgfile') %>'/>
                <target dev='hdb' bus='ide'/>
                <readonly/>
           </disk>
@@ -60,8 +60,8 @@
                     <model type='e1000'/>
           </interface> 
 
-          <console type='pty' tty='/dev/pts/<%= scope.lookupvar('n1k-vsm::consolepts') %>'>
-                   <source path='/dev/pts/<%= scope.lookupvar('n1k-vsm::consolepts') %>'/>
+          <console type='pty' tty='/dev/pts/<%= scope.lookupvar('n1k_vsm::consolepts') %>'>
+                   <source path='/dev/pts/<%= scope.lookupvar('n1k_vsm::consolepts') %>'/>
                    <target port='0'/>
           </console>
       </devices>
