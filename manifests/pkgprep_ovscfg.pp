@@ -100,8 +100,29 @@ class n1k_vsm::pkgprep_ovscfg {
         command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_genisoimage \n name=genisoimage \n ensure=installed \n\" >> ${n1k_vsm::Debug_Log}",
       }
 
+      package {"Package_ebtables":
+        name   => "ebtables",
+        #ensure => "purged",
+        ensure => "installed",
+        before => Notify["$Sync_Point_KVM"],
+      }
+      ->
+      exec {"Debug_Package_ebtables":
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_ebtables \n name=ebtables \n ensure=purged\n\" >> ${n1k_vsm::Debug_Log}",
+      }
 
       notify{"$Sync_Point_KVM":}
+
+      service {"Service_libvirtd":
+        name   => "libvirtd",
+        ensure => "running",
+      }
+      ->
+      exec {"Debug_Service_libvirtd":
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Service_libvirtd\n name=libvirtd \n ensure=running \n\" >> ${n1k_vsm::Debug_Log}",
+      }
+         
+
 
       #
       # Virsh network exec configuration section 
@@ -127,16 +148,6 @@ class n1k_vsm::pkgprep_ovscfg {
       }
     
       notify{"$Sync_Point_Virsh_Network":}
-
-      package {"Package_ebtables":
-        name   => "ebtables",
-        #ensure => "purged",
-        ensure => "installed",
-      }
-      ->
-      exec {"Debug_Package_ebtables":
-        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_ebtables \n name=ebtables \n ensure=purged\n\" >> ${n1k_vsm::Debug_Log}",
-      }
 
       package {"Package_openvswitch":
         name   => "openvswitch",
@@ -240,7 +251,7 @@ class n1k_vsm::pkgprep_ovscfg {
       # Order enforcement logic
       # 
 
-      Notify["$Sync_Point_KVM"] -> Notify["$Sync_Point_Virsh_Network"] -> Package["Package_ebtables"] -> Package["Package_openvswitch"] -> Service["Service_openvswitch"] -> Exec["Exec_AddOvsBr"]->Augeas["Augeas_modify_ifcfg-ovsbridge"]->Augeas["Augeas_modify_ifcfg-physicalinterfaceforovs"]->Exec["Exec_phy_bridge"]->Exec["Exec_rebridge"]
+      Notify["$Sync_Point_KVM"] -> Service["Service_libvirtd"] -> Notify["$Sync_Point_Virsh_Network"] -> Package["Package_openvswitch"] -> Service["Service_openvswitch"] -> Exec["Exec_AddOvsBr"]->Augeas["Augeas_modify_ifcfg-ovsbridge"]->Augeas["Augeas_modify_ifcfg-physicalinterfaceforovs"]->Exec["Exec_phy_bridge"]->Exec["Exec_rebridge"]
     }
     "Ubuntu": {
     }

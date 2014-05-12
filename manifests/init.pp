@@ -22,9 +22,9 @@ class n1k_vsm(
     $disksize = 4)
 {
 
-    exec {"eth5":
-      command => "/bin/echo $physicalinterfaceforovs > /tmp/ethX",
-    }
+    $b = inline_template('<%= File.basename(isoimage) %>')
+    $imgfile  = "/var/spool/vsm/$b"
+    $diskfile = "/var/spool/vsm/${role}_disk"
 
     $Debug_Print = "/usr/bin/printf"
     $Debug_Log = "/tmp/n1kv_vsm_puppet.log"
