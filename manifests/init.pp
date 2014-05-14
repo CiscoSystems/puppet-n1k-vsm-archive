@@ -22,8 +22,7 @@ class n1k_vsm(
     $disksize = 4)
 {
 
-    $b = inline_template('<%= File.basename(isoimage) %>')
-    $imgfile  = "/var/spool/vsm/$b"
+    $imgfile  = "/var/spool/vsm/${role}_repacked.iso"
     $diskfile = "/var/spool/vsm/${role}_disk"
 
     $Debug_Print = "/usr/bin/printf"
