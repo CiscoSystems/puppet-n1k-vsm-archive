@@ -7,8 +7,7 @@ class n1k_vsm(
     $nodegateway,
     $vsmname,
     $consolepts = 2,
-    $isoimage,
-    $role = 'standalone',
+    $role = 'primary',
     $domainid,
     $adminpasswd,
     $mgmtip,
@@ -19,7 +18,10 @@ class n1k_vsm(
     $pktinterface,
     $memory = 4096000,
     $vcpu = 2,
-    $disksize = 4)
+    $disksize = 4,
+    $n1kv_source = "puppet:///modules/n1k_vsm/vsm.iso",
+    $n1kv_version = "latest",
+   )
 {
 
     $imgfile  = "/var/spool/vsm/${role}_repacked.iso"

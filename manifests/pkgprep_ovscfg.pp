@@ -257,7 +257,7 @@ class n1k_vsm::pkgprep_ovscfg {
     }
     default: {
       #
-      # bail out other than supported OS
+      # bail out for unsupported OS
       #
       fail("<Error>: os[$os] is not supported")
     }

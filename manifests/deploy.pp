@@ -1,5 +1,4 @@
 class n1k_vsm::deploy {
-  include 'stdlib'
 
   #ensure tap interfaces and deploy the vsm
 
