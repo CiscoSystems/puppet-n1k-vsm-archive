@@ -16,6 +16,7 @@ class n1k_vsm::vsmprep {
   $VSM_Repackage_Script_Name="repackiso.py"
   $VSM_Repackage_Script="/tmp/$VSM_Repackage_Script_Name"
   $VSM_DEST="$VSM_Spool_Dir/$dest"
+  $VSM_PKG_NAME="nexus-1000v-vsm"
   $VSM_ISO="vsm.iso"
 
   #
@@ -36,17 +37,17 @@ class n1k_vsm::vsmprep {
 
   case "$source_method" {
     "http": {
-      yumrepo {"cisco-foreman":
+      yumrepo {"http-cisco-foreman":
         baseurl => "$n1k_vsm::n1kv_source",
         descr => "Internal repo for Foreman",
         enabled => "1",
         gpgcheck => "1",
-        gpgkey => "$n1kv_source::n1kv_source/RPM-GPG-KEY",
-        notify => Package["Package_VSM"],
+        proxy => "_none_",
+        gpgkey => "$n1k_vsm::n1kv_source/RPM-GPG-KEY",
       }
       ->
       package {"Package_VSM":
-        name => "nexus-1000v-vsm",
+        name => "$VSM_PKG_NAME",
         ensure => "${n1k_vsm::n1kv_version}",
         before => Notify["$VSM_Bin_Prepare_Sync_Point"],
       }
@@ -57,17 +58,23 @@ class n1k_vsm::vsmprep {
     }
 
     "ftp": {
-      yumrepo {"cisco-foreman":
+      package {"ftp":
+        name => "ftp",
+        ensure => "installed",
+      }
+      ->
+      yumrepo {"ftp-cisco-foreman":
         baseurl => "$n1k_vsm::n1kv_source",
         descr => "Internal repo for Foreman",
         enabled => "1",
         gpgcheck => "1",
-        gpgkey => "${n1kv_source}/RPM-GPG-KEY",
+        proxy => "_none_",
+        gpgkey => "${n1k_vsm::n1kv_source}/RPM-GPG-KEY",
         before => Notify["$VSM_Bin_Prepare_Sync_Point"],
-        notify => Package["Package_VSM"],
       }
+      ->
       package {"Package_VSM":
-        name => "nexus-1000v-vsm",
+        name => "$VSM_PKG_NAME",
         ensure => "${n1k_vsm::n1kv_version}",
         before => Notify["$VSM_Bin_Prepare_Sync_Point"],
       }
@@ -98,7 +105,7 @@ class n1k_vsm::vsmprep {
         #
         # If it's an RPM, we do a local rpm installation ..."
         #
-        command => "/bin/rpm -i $VSM_DEST && /bin/cp $VSM_RPM_Install_Dir/*.iso $VSM_Spool_Dir/$VSM_ISO",
+        command => "/bin/rpm -i --force $VSM_DEST && /bin/cp $VSM_RPM_Install_Dir/*.iso $VSM_Spool_Dir/$VSM_ISO",
         unless => "/usr/bin/file $VSM_DEST | /bin/grep -c ' ISO '",
         before => Notify["$VSM_Bin_Prepare_Sync_Point"],
       }
