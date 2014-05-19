@@ -1,10 +1,22 @@
 class n1k_vsm::vsmprep {
   include 'stdlib'
   
+  #
+  # VSM package source parsing logic
+  #
+  $source = $n1k_vsm::n1kv_source
+
+  $source_method = regsubst($source, "^(.+):.*", '\1')
+  $dest = inline_template('<%= File.basename(source) %>')
+
+
   $VSM_Bin_Prepare_Sync_Point="##VSM_BIN_PREPARE_SYNC_POINT"
   $VSM_Spool_Dir="/var/spool/vsm"
+  $VSM_RPM_Install_Dir="/opt/cisco/vsm"
   $VSM_Repackage_Script_Name="repackiso.py"
   $VSM_Repackage_Script="/tmp/$VSM_Repackage_Script_Name"
+  $VSM_DEST="$VSM_Spool_Dir/$dest"
+  $VSM_ISO="vsm.iso"
 
   #
   # prepare vsm spool folder
@@ -22,17 +34,6 @@ class n1k_vsm::vsmprep {
   }
 
 
-  #
-  # VSM package source parsing logic
-  #
-  $source = $n1k_vsm::n1kv_source
-
-  $source_method = regsubst($source, "^(.+):.*", '\1')
-  $dest = inline_template('<%= File.basename(source) %>')
-
-  $VSM_DEST = "$VSM_Spool_Dir/$dest"
-  $VSM_ISO = "vsm.iso"
-
   case "$source_method" {
     "http": {
       yumrepo {"cisco-foreman":
@@ -41,11 +42,17 @@ class n1k_vsm::vsmprep {
         enabled => "1",
         gpgcheck => "1",
         gpgkey => "$n1kv_source::n1kv_source/RPM-GPG-KEY",
+        notify => Package["Package_VSM"],
+      }
+      ->
+      package {"Package_VSM":
+        name => "nexus-1000v-vsm",
+        ensure => "${n1k_vsm::n1kv_version}",
         before => Notify["$VSM_Bin_Prepare_Sync_Point"],
       }
       ->
-      exec {"Debug-http-cisco-os":
-        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Debug-http-cisco-os \n baseurl=$n1k_vsm::n1kv_source \n descr=>Internal repo for Foreman \n enabled = 1 \n gpgcheck=1 \n gpgkey => $n1kv_source::n1kv_source/RPM-GPG-KEY\n\" >> ${n1k_vsm::Debug_Log}",
+      exec {"Debug-http-cisco-os and Package_VSM":
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Debug-http-cisco-os and Package_VSM \n baseurl=$n1k_vsm::n1kv_source \n descr=>Internal repo for Foreman \n enabled = 1 \n gpgcheck=1 \n gpgkey => $n1kv_source::n1kv_source/RPM-GPG-KEY\n\" >> ${n1k_vsm::Debug_Log}",
       }
     }
 
@@ -57,10 +64,16 @@ class n1k_vsm::vsmprep {
         gpgcheck => "1",
         gpgkey => "${n1kv_source}/RPM-GPG-KEY",
         before => Notify["$VSM_Bin_Prepare_Sync_Point"],
+        notify => Package["Package_VSM"],
+      }
+      package {"Package_VSM":
+        name => "nexus-1000v-vsm",
+        ensure => "${n1k_vsm::n1kv_version}",
+        before => Notify["$VSM_Bin_Prepare_Sync_Point"],
       }
       ->
-      exec {"Debug-ftp-cisco-os":
-        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Debug-ftp-cisco-os \n baseurl=$n1k_vsm::n1kv_source \n descr=>Internal repo for Foreman \n enabled = 1 \n gpgcheck=1 \n gpgkey => $n1kv_source::n1kv_source/RPM-GPG-KEY\n\" >> ${n1k_vsm::Debug_Log}",
+      exec {"Debug-ftp-cisco-os and Package_VSM":
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Debug-ftp-cisco-os and Package_VSM \n baseurl=$n1k_vsm::n1kv_source \n descr=>Internal repo for Foreman \n enabled = 1 \n gpgcheck=1 \n gpgkey => $n1kv_source::n1kv_source/RPM-GPG-KEY\n\" >> ${n1k_vsm::Debug_Log}",
       }
     
     }
@@ -78,33 +91,25 @@ class n1k_vsm::vsmprep {
         before => Notify["$VSM_Bin_Prepare_Sync_Point"],
       }
       ->
-      exec {"Debug_File_VSM_Bin_Prepare":
-        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Notify_VSM_ISO_NAME \n path=$VSM_DEST ensure=directory \n owner=root\n group=root\n mode=664\ni source=$n1k_vsm::n1kv_source\" >> ${n1k_vsm::Debug_Log}",
+      #
+      # See if an RPM to ISO is needed
+      #
+      exec {"Exec_RPM_TO_ISO":
+        #
+        # If it's an RPM, we do a local rpm installation ..."
+        #
+        command => "/bin/rpm -i $VSM_DEST && /bin/cp $VSM_RPM_Install_Dir/*.iso $VSM_Spool_Dir/$VSM_ISO",
+        unless => "/usr/bin/file $VSM_DEST | /bin/grep -c ' ISO '",
+        before => Notify["$VSM_Bin_Prepare_Sync_Point"],
+      }
+      ->
+      exec {"Debug_File_VSM_Bin_Prepare and Exec_RPM_TO_ISO":
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Notify_VSM_ISO_NAME and Exec_RPM_TO_ISO \n path=$VSM_DEST ensure=directory \n owner=root\n group=root\n mode=664\ni source=$n1k_vsm::n1kv_source\" >> ${n1k_vsm::Debug_Log}",
       }
     }
     default: {
       fail("<Error>: Unknown sourcing method [$source_method] is not supported")
     }
-  }
-
-  if "$source_method" != "puppet" {
-    package {"Package_VSM":
-      name => "nexus-1000v-iso-6.5",
-      ensure => "${n1k_vsm::n1kv_version}",
-      before => Notify["$VSM_Bin_Prepare_Sync_Point"],
-    }
-  }
-
-  #
-  # See if an RPM to ISO is needed
-  #
-  exec {"Exec_RPM_TO_ISO":
-    #
-    # To do: extract and/or copy the vsm.iso ...
-    #
-    command => "/bin/echo",
-    unless => "/usr/bin/file $VSM_DEST | /bin/grep -c ' ISO '",
-    before => Notify["$VSM_Bin_Prepare_Sync_Point"],
   }
 
   notify {"$VSM_Bin_Prepare_Sync_Point":}
