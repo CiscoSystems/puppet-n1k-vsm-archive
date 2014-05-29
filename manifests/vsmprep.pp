@@ -93,6 +93,13 @@ class n1k_vsm::vsmprep {
     }
     "puppet": {
       #
+      # make sure the file does not exist
+      #
+      exec {"File_VSM_Bin_Remove":
+        command => "/bin/rm -f $VSM_DEST || /bin/true",
+      }
+      ->
+      #
       # copy vsm iso image from master to local storage 
       #
       file {"File_VSM_Bin_Prepare":
@@ -102,7 +109,6 @@ class n1k_vsm::vsmprep {
         group => "root",
         mode  => "664",
         source => "$n1k_vsm::n1kv_source",
-        before => Notify["$VSM_Bin_Prepare_Sync_Point"],
       }
       ->
       #
@@ -118,7 +124,7 @@ class n1k_vsm::vsmprep {
       }
       ->
       exec {"Debug_File_VSM_Bin_Prepare and Exec_RPM_TO_ISO":
-        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Notify_VSM_ISO_NAME and Exec_RPM_TO_ISO \n path=$VSM_DEST ensure=directory \n owner=root\n group=root\n mode=664\ni source=$n1k_vsm::n1kv_source\" >> ${n1k_vsm::Debug_Log}",
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Notify_VSM_ISO_NAME and Exec_RPM_TO_ISO \n path=$VSM_DEST \n ensure=directory \n owner=root\n group=root\n mode=664\n source=$n1k_vsm::n1kv_source\n \" >> ${n1k_vsm::Debug_Log}",
       }
     }
     default: {

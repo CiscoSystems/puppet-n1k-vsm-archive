@@ -108,7 +108,7 @@ class n1k_vsm::pkgprep_ovscfg {
       }
       ->
       exec {"Debug_Package_ebtables":
-        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_ebtables \n name=ebtables \n ensure=purged\n\" >> ${n1k_vsm::Debug_Log}",
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_ebtables \n name=ebtables \n ensure=purged \n\" >> ${n1k_vsm::Debug_Log}",
       }
 
       notify{"$Sync_Point_KVM":}
