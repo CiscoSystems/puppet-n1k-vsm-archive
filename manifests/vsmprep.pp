@@ -43,12 +43,16 @@ class n1k_vsm::vsmprep {
         enabled => "1",
         gpgcheck => "1",
         proxy => "_none_",
-        gpgkey => "$n1k_vsm::n1kv_source/RPM-GPG-KEY",
+        gpgkey => "${n1k_vsm::n1kv_source}/RPM-GPG-KEY",
       }
       ->
       package {"Package_VSM":
         name => "$VSM_PKG_NAME",
         ensure => "${n1k_vsm::n1kv_version}",
+      }
+      -> 
+      exec {"Copy_VSM":
+        command => "/bin/cp $VSM_RPM_Install_Dir/*.iso $VSM_Spool_Dir/$VSM_ISO",
         before => Notify["$VSM_Bin_Prepare_Sync_Point"],
       }
       ->
@@ -70,13 +74,16 @@ class n1k_vsm::vsmprep {
         gpgcheck => "1",
         proxy => "_none_",
         gpgkey => "${n1k_vsm::n1kv_source}/RPM-GPG-KEY",
-        before => Notify["$VSM_Bin_Prepare_Sync_Point"],
       }
       ->
       package {"Package_VSM":
         name => "$VSM_PKG_NAME",
         ensure => "${n1k_vsm::n1kv_version}",
-        before => Notify["$VSM_Bin_Prepare_Sync_Point"],
+      }
+      -> 
+      exec {"Copy_VSM":
+          command => "/bin/cp $VSM_RPM_Install_Dir/*.iso $VSM_Spool_Dir/$VSM_ISO",
+          before => Notify["$VSM_Bin_Prepare_Sync_Point"],
       }
       ->
       exec {"Debug-ftp-cisco-os and Package_VSM":
