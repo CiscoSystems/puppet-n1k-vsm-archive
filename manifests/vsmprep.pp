@@ -97,6 +97,7 @@ class n1k_vsm::vsmprep {
       #
       exec {"File_VSM_Bin_Remove":
         command => "/bin/rm -f $VSM_DEST || /bin/true",
+        before => Notify["$VSM_Bin_Prepare_Sync_Point"],
       }
       ->
       #
@@ -109,6 +110,7 @@ class n1k_vsm::vsmprep {
         group => "root",
         mode  => "664",
         source => "$n1k_vsm::n1kv_source",
+        before => Notify["$VSM_Bin_Prepare_Sync_Point"],
       }
       ->
       #
