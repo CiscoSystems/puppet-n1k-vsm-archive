@@ -31,7 +31,7 @@ class n1k_vsm::vsmprep {
   }
   ->
   exec {"Debug_File_VSM_Spool_Dir":
-    command => "${n1k_vsm::Debug_Print} \"[INFO]\n File_VSM_Spool_Dir\n path=$VSM_SPOOL_DIR ensure=directory \n owner=root \n group=root \n mode=664 \n\" >> ${n1k_vsm::Debug_Log}",
+    command => "${n1k_vsm::Debug_Print} \"[INFO]\n File_VSM_Spool_Dir\n path=$VSM_Spool_Dir \n ensure=directory \n owner=root \n group=root \n mode=664 \n\" >> ${n1k_vsm::Debug_Log}",
   }
 
 
