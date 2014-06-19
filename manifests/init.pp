@@ -1,7 +1,7 @@
 class n1k_vsm(
     $configureovs = false,
     $ovsbridge,
-    $physicalinterfaceforovs = 'eth5',
+    $physicalinterfaceforovs = 'enp1s0f0',
     $nodeip,
     $nodenetmask,
     $nodegateway,

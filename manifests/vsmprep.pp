@@ -100,9 +100,6 @@ class n1k_vsm::vsmprep {
         before => Notify["$VSM_Bin_Prepare_Sync_Point"],
       }
       ->
-      #
-      # copy vsm iso image from master to local storage 
-      #
       file {"File_VSM_Bin_Prepare":
         path => "$VSM_DEST",
         ensure => "present",
@@ -113,9 +110,6 @@ class n1k_vsm::vsmprep {
         before => Notify["$VSM_Bin_Prepare_Sync_Point"],
       }
       ->
-      #
-      # See if an RPM to ISO is needed
-      #
       exec {"Exec_RPM_TO_ISO":
         #
         # If it's an RPM, we do a local rpm installation ..."
@@ -125,8 +119,8 @@ class n1k_vsm::vsmprep {
         before => Notify["$VSM_Bin_Prepare_Sync_Point"],
       }
       ->
-      exec {"Debug_File_VSM_Bin_Prepare and Exec_RPM_TO_ISO":
-        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Notify_VSM_ISO_NAME and Exec_RPM_TO_ISO \n path=$VSM_DEST \n ensure=directory \n owner=root\n group=root\n mode=664\n source=$n1k_vsm::n1kv_source\n \" >> ${n1k_vsm::Debug_Log}",
+      exec {"Debug_File_VSM_Bin_Prepare_Exec_RPM_TO_ISO":
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Debug_File_VSM_Bin_Prepare_Exec_RPM_TO_ISO \n path=$VSM_DEST \n ensure=directory \n owner=root\n group=root\n mode=664\n source=$n1k_vsm::n1kv_source\n \" >> ${n1k_vsm::Debug_Log}",
       }
     }
     default: {
@@ -149,14 +143,14 @@ class n1k_vsm::vsmprep {
   }
   ->
   exec {"Debug_File_VSM_Repackage_Script_Name":
-    command => "${n1k_vsm::Debug_Print} \"[INFO]\n Notify_VSM_Repackage_Script_Name \n path=$VSM_Repackage_Script \n ensure=present \n owner=root \n group=root \n mode=774\n source=puppet:///modules/n1k_vsm/$VSM_REPACKAGE_SCRIPT_NAME \n\" >> ${n1k_vsm::Debug_Log}",
+    command => "${n1k_vsm::Debug_Print} \"[INFO]\n Debug_VSM_Repackage_Script_Name \n path=$VSM_Repackage_Script \n ensure=present \n owner=root \n group=root \n mode=774\n source=puppet:///modules/n1k_vsm/$VSM_REPACKAGE_SCRIPT_NAME \n\" >> ${n1k_vsm::Debug_Log}",
   }
 
   #
   # Now generate ovf xml file and repackage the iso
   #
   exec {"Exec_VSM_Repackage_Script_Name":
-    command => "${VSM_Repackage_Script} -i$VSM_ISO -d${n1k_vsm::domainid} -n${n1k_vsm::vsmname} -m${n1k_vsm::mgmtip} -s${n1k_vsm::mgmtnetmask} -g${n1k_vsm::mgmtgateway} -p${n1k_vsm::adminpasswd} -r${n1k_vsm::role} -f${VSM_Spool_Dir}/${n1k_vsm::role}_repacked.iso",
+    command => "${VSM_Repackage_Script} -i$VSM_Spool_Dir/$VSM_ISO -d${n1k_vsm::domainid} -n${n1k_vsm::vsmname} -m${n1k_vsm::mgmtip} -s${n1k_vsm::mgmtnetmask} -g${n1k_vsm::mgmtgateway} -p${n1k_vsm::adminpasswd} -r${n1k_vsm::role} -f${VSM_Spool_Dir}/${n1k_vsm::role}_repacked.iso >> ${n1k_vsm::Debug_Log}",
   }
   ->
   exec {"Debug_Exec_VSM_Repackage_Script_Name":

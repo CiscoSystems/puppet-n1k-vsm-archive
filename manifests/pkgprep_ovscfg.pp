@@ -30,14 +30,15 @@ class n1k_vsm::pkgprep_ovscfg {
       # Pitfalls observed:
       # 1. We cannot reassign variables for some reason
       # 2. We cannot leave spaces in name
-      package {"Package_qemu-kvm-rhev":
-        name   => "qemu-kvm-rhev",
+      # qemu-kvm-rhev
+      package {"Package_qemu-kvm":
+        name   => "qemu-kvm",
         ensure => "installed",
         before => Notify["$Sync_Point_KVM"],
       }
       ->
-      exec {"Debug_Package_qemu-kvm-rhev":
-        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_qemu-kvm-rhev \n name=qemu-kvm-rhev \n ensure=installed\n\" >> ${n1k_vsm::Debug_Log}",
+      exec {"Debug_Package_qemu-kvm":
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_qemu-kvm \n name=qemu-kvm \n ensure=installed\n\" >> ${n1k_vsm::Debug_Log}",
       }
 
       package {"Package_virt-viewer":
@@ -80,15 +81,15 @@ class n1k_vsm::pkgprep_ovscfg {
         command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_libvirt-python \n name=libvirt-python \n ensure=installed\n\" >> ${n1k_vsm::Debug_Log}",
       }
     
-      package {"Package_python-virtinst":
-        name   => "python-virtinst",
-        ensure => "installed",
-        before => Notify["$Sync_Point_KVM"],
-      }
-      ->
-      exec {"Debug_Package_python-virtinst": 
-        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_python-virtinst \n name=python-virtinst \n ensure=installed \n\" >> ${n1k_vsm::Debug_Log}",
-      }
+      #package {"Package_python-virtinst":
+      #  name   => "python-virtinst",
+      #  ensure => "installed",
+      #  before => Notify["$Sync_Point_KVM"],
+      #}
+      #->
+      #exec {"Debug_Package_python-virtinst": 
+      #  command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_python-virtinst \n name=python-virtinst \n ensure=installed \n\" >> ${n1k_vsm::Debug_Log}",
+      #}
 
       package {"Package_genisoimage":
         name   => "genisoimage",
