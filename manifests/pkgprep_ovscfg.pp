@@ -91,15 +91,15 @@ class n1k_vsm::pkgprep_ovscfg {
       #  command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_python-virtinst \n name=python-virtinst \n ensure=installed \n\" >> ${n1k_vsm::Debug_Log}",
       #}
 
-      package {"Package_genisoimage":
-        name   => "genisoimage",
-        ensure => "installed",
-        before => Notify["$Sync_Point_KVM"],
-      }
-      ->
-      exec {"Debug_Package_genisoimage": 
-        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_genisoimage \n name=genisoimage \n ensure=installed \n\" >> ${n1k_vsm::Debug_Log}",
-      }
+      #package {"Package_genisoimage":
+      #  name   => "genisoimage",
+      #  ensure => "installed",
+      #  before => Notify["$Sync_Point_KVM"],
+      #}
+      #->
+      #exec {"Debug_Package_genisoimage": 
+      #  command => "${n1k_vsm::Debug_Print} \"[INFO]\n Package_genisoimage \n name=genisoimage \n ensure=installed \n\" >> ${n1k_vsm::Debug_Log}",
+      #}
 
       package {"Package_ebtables":
         name   => "ebtables",
@@ -123,8 +123,6 @@ class n1k_vsm::pkgprep_ovscfg {
         command => "${n1k_vsm::Debug_Print} \"[INFO]\n Service_libvirtd\n name=libvirtd \n ensure=running \n\" >> ${n1k_vsm::Debug_Log}",
       }
          
-
-
       #
       # Virsh network exec configuration section 
       #
@@ -228,31 +226,31 @@ class n1k_vsm::pkgprep_ovscfg {
       $phy_bridge="/tmp/phy_bridge"
       #
       # Move physical port around from host bridge if any, to ovs bridge
-      # I have not figured out how in Puppet world to pass environmental variable around
-      # Pardon for not being elegant 
       #
-      exec {"Exec_phy_bridge":
-        command => "/usr/sbin/brctl show | /bin/grep $intf | /bin/sed 's/[\t ].*//' > $phy_bridge", 
-      }
-      ->
-      exec {"Debug_Exec_phy_bridge":
-        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Exec_phy_bridge \n /usr/sbin/brctl show | /bin/grep $intf | /bin/sed 's/[\t ].*//' > $phy_bridge \n \" >> ${n1k_vsm::Debug_Log}", 
-      }
+      #exec {"Exec_phy_bridge":
+      #  command => "/usr/sbin/brctl show | /bin/grep $intf | /bin/sed 's/[\t ].*//' > $phy_bridge", 
+      #}
+      #->
+      #exec {"Debug_Exec_phy_bridge":
+      #  command => "${n1k_vsm::Debug_Print} \"[INFO]\n Exec_phy_bridge \n /usr/sbin/brctl show | /bin/grep $intf | /bin/sed 's/[\t ].*//' > $phy_bridge \n \" >> ${n1k_vsm::Debug_Log}", 
+      #}
   
       exec {"Exec_rebridge":
-        command => "/usr/bin/test -s $phy_bridge && /usr/sbin/brctl delif \$(cat $phy_bridge) $intf || /bin/true; /usr/bin/ovs-vsctl -- --may-exist add-port $n1k_vsm::ovsbridge $intf",
+        #command => "/usr/bin/test -s $phy_bridge && /usr/sbin/brctl delif \$(cat $phy_bridge) $intf || /bin/true; /usr/bin/ovs-vsctl -- --may-exist add-port $n1k_vsm::ovsbridge $intf",
+        command => "/usr/bin/ovs-vsctl -- --may-exist add-port $n1k_vsm::ovsbridge $intf",
         #notify => Service["Service_network"],
       }
       ->
       exec {"Debug_Exec_rebridge":
-        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Exec_rebridge \n /usr/bin/test -s $phy_bridge && /usr/sbin/brctl delif \$(cat $phy_bridge) $intf || /bin/true; /usr/bin/ovs-vsctl -- --may-exist add-port $n1k_vsm::ovsbridge $intf; /bin/rm -f $phy_bridge\n \" >> ${n1k_vsm::Debug_Log}",
+        #command => "${n1k_vsm::Debug_Print} \"[INFO]\n Exec_rebridge \n /usr/bin/test -s $phy_bridge && /usr/sbin/brctl delif \$(cat $phy_bridge) $intf || /bin/true; /usr/bin/ovs-vsctl -- --may-exist add-port $n1k_vsm::ovsbridge $intf; /bin/rm -f $phy_bridge \n\" >> ${n1k_vsm::Debug_Log}",
+        command => "${n1k_vsm::Debug_Print} \"[INFO]\n Exec_rebridge \n /usr/bin/ovs-vsctl -- --may-exist add-port $n1k_vsm::ovsbridge $intf \n\" >> ${n1k_vsm::Debug_Log}",
       }
 
       #
       # Order enforcement logic
       # 
-
-      Notify["$Sync_Point_KVM"] -> Service["Service_libvirtd"] -> Notify["$Sync_Point_Virsh_Network"] -> Package["Package_openvswitch"] -> Service["Service_openvswitch"] -> Exec["Exec_AddOvsBr"]->Augeas["Augeas_modify_ifcfg-ovsbridge"]->Augeas["Augeas_modify_ifcfg-physicalinterfaceforovs"]->Exec["Exec_phy_bridge"]->Exec["Exec_rebridge"]
+      #Notify["$Sync_Point_KVM"] -> Service["Service_libvirtd"] -> Notify["$Sync_Point_Virsh_Network"] -> Package["Package_openvswitch"] -> Service["Service_openvswitch"] -> Exec["Exec_AddOvsBr"]->Augeas["Augeas_modify_ifcfg-ovsbridge"]->Augeas["Augeas_modify_ifcfg-physicalinterfaceforovs"]->Exec["Exec_phy_bridge"]->Exec["Exec_rebridge"]
+      Notify["$Sync_Point_KVM"] -> Service["Service_libvirtd"] -> Notify["$Sync_Point_Virsh_Network"] -> Package["Package_openvswitch"] -> Service["Service_openvswitch"] -> Exec["Exec_AddOvsBr"]->Augeas["Augeas_modify_ifcfg-ovsbridge"]->Augeas["Augeas_modify_ifcfg-physicalinterfaceforovs"]->Exec["Exec_rebridge"]
     }
     "Ubuntu": {
     }
