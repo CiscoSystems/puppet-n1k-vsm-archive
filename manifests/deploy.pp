@@ -64,15 +64,13 @@ class n1k_vsm::deploy {
 
   exec { "Exec_Launch_VSM":
          command => "/usr/bin/virsh start ${n1k_vsm::vsmname}",
-         unless => "/usr/bin/virsh list --all | grep -c ' ${n1k_vsm::vsmname} '",
+         unless => "/usr/bin/virsh list --all | grep -c ' ${n1k_vsm::vsmname} .* running '",
   }
   ->
   exec {"Debug_Exec_Launch_VSM":
-    command => "${n1k_vsm::Debug_Print} \"[INFO]\nExec_Launch_VSM \n command=/bin/echo /usr/bin/virsh start ${n1k_vsm::vsmname} \n unless=/usr/bin/virsh list | grep -c ' ${n1k_vsm::vsmname} .* running' \" >>
- ${n1k_vsm::Debug_Log}",
+    command => "${n1k_vsm::Debug_Print} \"[INFO]\nExec_Launch_VSM \n command=/bin/echo /usr/bin/virsh start ${n1k_vsm::vsmname} \n unless=/usr/bin/virsh list --all | grep -c ' ${n1k_vsm::vsmname} .* running' \" >> ${n1k_vsm::Debug_Log}",
   }
 
- 
-
-  Exec["Exec_create_disk"] -> File["File_Target_XML_File"] -> Exec["Exec_Launch_VSM"]
+  Exec["Exec_create_disk"] -> File["File_Target_XML_File"] -> Exec["Exec_Create_VSM"] -> Exec["Exec_Launch_VSM"]
 }
+
